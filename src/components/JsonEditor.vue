@@ -47,12 +47,21 @@
 
     <!-- Editor Area -->
     <div class="editor-content flex-1 relative">
+      <!-- Syntax highlighted overlay -->
+      <pre
+        class="syntax-highlight absolute inset-0 p-4 font-mono text-sm overflow-auto pointer-events-none"
+        :class="{ 'opacity-0': !localContent }"
+      ><code class="language-json" v-html="highlightedCode"></code></pre>
+
+      <!-- Actual textarea -->
       <textarea
         v-model="localContent"
         :readonly="readonly"
         @input="handleInput"
-        class="w-full h-full p-4 font-mono text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-        :class="{ 'cursor-not-allowed bg-gray-50 dark:bg-gray-900': readonly }"
+        @scroll="syncScroll"
+        ref="textareaRef"
+        class="w-full h-full p-4 font-mono text-sm bg-transparent text-transparent caret-gray-900 dark:caret-gray-100 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none relative z-10"
+        :class="{ 'cursor-not-allowed': readonly }"
         spellcheck="false"
       ></textarea>
     </div>
@@ -60,8 +69,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed, onMounted, nextTick } from 'vue'
 import { validateJson } from '@/services/JsonValidator'
+import hljs from 'highlight.js/lib/core'
+import json from 'highlight.js/lib/languages/json'
+import 'highlight.js/styles/atom-one-light.css'
+
+// Register JSON language
+hljs.registerLanguage('json', json)
 
 const props = defineProps({
   content: {
@@ -87,9 +102,32 @@ const emit = defineEmits(['update:content', 'validation-change'])
 const localContent = ref(props.content)
 const validationResult = ref({ valid: true })
 const lastValidContent = ref(props.content)
+const textareaRef = ref(null)
 
 // Debounce timer
 let debounceTimer = null
+
+// Computed highlighted code
+const highlightedCode = computed(() => {
+  try {
+    return hljs.highlight(localContent.value, { language: 'json' }).value
+  } catch (e) {
+    // If highlighting fails, return escaped plain text
+    return localContent.value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+  }
+})
+
+// Sync scroll between textarea and highlight overlay
+function syncScroll(event) {
+  const highlight = event.target.previousElementSibling
+  if (highlight) {
+    highlight.scrollTop = event.target.scrollTop
+    highlight.scrollLeft = event.target.scrollLeft
+  }
+}
 
 function validateContent(content) {
   const result = validateJson(content)
@@ -136,26 +174,3 @@ watch(() => props.content, (newContent) => {
   validateContent(newContent)
 })
 </script>
-
-<style scoped>
-.json-editor {
-  border: 1px solid theme('colors.gray.200');
-}
-
-.dark .json-editor {
-  border-color: theme('colors.gray.700');
-}
-
-textarea {
-  line-height: 1.5;
-  tab-size: 2;
-}
-
-textarea::placeholder {
-  color: theme('colors.gray.400');
-}
-
-.dark textarea::placeholder {
-  color: theme('colors.gray.500');
-}
-</style>

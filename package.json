@@ -32,6 +32,7 @@
   "dependencies": {
     "@jsonforms/core": "^3.6.0",
     "@jsonforms/vue": "^3.6.0",
-    "@jsonforms/vue-vanilla": "^3.6.0"
+    "@jsonforms/vue-vanilla": "^3.6.0",
+    "highlight.js": "^11.11.1"
   }
 }
