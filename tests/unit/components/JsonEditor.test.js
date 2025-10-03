@@ -209,4 +209,123 @@ describe('JsonEditor.vue', () => {
       expect(textarea.element.value).toBe('{"updated": true}')
     })
   })
+
+  describe('validation', () => {
+    it('validates content and shows no error for valid JSON', async () => {
+      const wrapper = mount(JsonEditor, {
+        props: {
+          content: '{"valid": true}',
+          title: 'Test'
+        }
+      })
+
+      const header = wrapper.find('.editor-header')
+      expect(header.classes()).not.toContain('bg-red-100')
+    })
+
+    it('shows error state for invalid JSON', async () => {
+      const wrapper = mount(JsonEditor, {
+        props: {
+          content: '{invalid}',
+          title: 'Test'
+        }
+      })
+
+      const header = wrapper.find('.editor-header')
+      expect(header.classes()).toContain('bg-red-100')
+    })
+
+    it('displays error message for invalid JSON', async () => {
+      const wrapper = mount(JsonEditor, {
+        props: {
+          content: '{bad json}',
+          title: 'Test'
+        }
+      })
+
+      expect(wrapper.text()).toContain('Error')
+    })
+
+    it('shows revert button when JSON is invalid', async () => {
+      const wrapper = mount(JsonEditor, {
+        props: {
+          content: '{"valid": true}',
+          title: 'Test'
+        }
+      })
+
+      // Initially no revert button
+      expect(wrapper.find('[data-testid="revert-button"]').exists()).toBe(false)
+
+      // Make content invalid
+      const textarea = wrapper.find('textarea')
+      await textarea.setValue('{invalid}')
+      await wrapper.vm.$nextTick()
+
+      // Wait for validation
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      // Should show revert button
+      expect(wrapper.find('[data-testid="revert-button"]').exists()).toBe(true)
+    })
+
+    it('reverts to last valid content when revert button clicked', async () => {
+      const wrapper = mount(JsonEditor, {
+        props: {
+          content: '{"valid": true}',
+          title: 'Test'
+        }
+      })
+
+      const textarea = wrapper.find('textarea')
+
+      // Make content invalid
+      await textarea.setValue('{invalid}')
+      await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      // Click revert button
+      const revertButton = wrapper.find('[data-testid="revert-button"]')
+      await revertButton.trigger('click')
+
+      // Should revert to original
+      expect(textarea.element.value).toBe('{"valid": true}')
+    })
+
+    it('emits validation-change event with validation result', async () => {
+      const wrapper = mount(JsonEditor, {
+        props: {
+          content: '{"test": true}',
+          title: 'Test'
+        }
+      })
+
+      const textarea = wrapper.find('textarea')
+      await textarea.setValue('{invalid}')
+
+      // Wait for validation
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      const emitted = wrapper.emitted('validation-change')
+      expect(emitted).toBeTruthy()
+      expect(emitted[emitted.length - 1][0].valid).toBe(false)
+    })
+
+    it('updates validation state when content prop changes', async () => {
+      const wrapper = mount(JsonEditor, {
+        props: {
+          content: '{"valid": true}',
+          title: 'Test'
+        }
+      })
+
+      // Change to invalid content
+      await wrapper.setProps({ content: '{invalid}' })
+      await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      const header = wrapper.find('.editor-header')
+      expect(header.classes()).toContain('bg-red-100')
+    })
+  })
 })
