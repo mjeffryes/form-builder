@@ -81,14 +81,22 @@ This plan breaks down the Form Builder app into small, testable increments follo
 - Basic responsive layout with Tailwind
 - Component test rendering structure
 
-#### Step 7: JSON Editor Component (Display Only)
+#### Step 7: JSONForms Preview Component
+- Create FormPreview.vue component
+- Integrate @jsonforms/vue
+- Accept schema, uiSchema, data as props
+- Render with default renderers
+- Display JSONForms validation errors
+- Component tests with valid and invalid schemas
+
+#### Step 8: JSON Editor Component (Display Only)
 - Create JsonEditor.vue component
 - Props: content (string), title, readonly
 - Display JSON with syntax highlighting (basic textarea first)
 - Emit update events on change
 - Unit tests for component rendering and events
 
-#### Step 8: Editor Validation Integration
+#### Step 9: Editor Validation Integration
 - Add validation state to JsonEditor
 - Show error state (red header) when invalid
 - Display error message
@@ -96,26 +104,18 @@ This plan breaks down the Form Builder app into small, testable increments follo
 - Emit validation status changes
 - Unit tests for validation UI states
 
-#### Step 9: Code Editor Integration (Monaco/CodeMirror)
+#### Step 10: Code Editor Integration (Monaco/CodeMirror)
 - Replace textarea with Monaco or CodeMirror
 - Configure JSON mode with syntax highlighting
 - Preserve all validation features
 - Unit tests ensuring editor integration works
 
-#### Step 10: Three-Editor Layout (Schema, UI Schema, Data)
+#### Step 11: Three-Editor Layout (Schema, UI Schema, Data)
 - Create SchemaEditorPanel component with accordion layout
 - Integrate three JsonEditor instances
 - Implement collapse/expand functionality
 - Basic resize capability between editors
 - Component tests for layout behavior
-
-#### Step 11: JSONForms Preview Component
-- Create FormPreview.vue component
-- Integrate @jsonforms/vue
-- Accept schema, uiSchema, data as props
-- Render with default renderers
-- Display JSONForms validation errors
-- Component tests with valid and invalid schemas
 
 #### Step 12: Wire Editors to Preview
 - Connect SchemaEditorPanel to FormPreview in App.vue

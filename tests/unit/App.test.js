@@ -19,4 +19,30 @@ describe('App.vue', () => {
     const header = wrapper.find('header')
     expect(header.exists()).toBe(true)
   })
+
+  describe('split-panel layout', () => {
+    it('has a left panel for editors', () => {
+      const wrapper = mount(App)
+      const leftPanel = wrapper.find('[data-testid="left-panel"]')
+      expect(leftPanel.exists()).toBe(true)
+    })
+
+    it('has a right panel for preview', () => {
+      const wrapper = mount(App)
+      const rightPanel = wrapper.find('[data-testid="right-panel"]')
+      expect(rightPanel.exists()).toBe(true)
+    })
+
+    it('displays placeholder text in left panel', () => {
+      const wrapper = mount(App)
+      const leftPanel = wrapper.find('[data-testid="left-panel"]')
+      expect(leftPanel.text()).toContain('Editors')
+    })
+
+    it('displays placeholder text in right panel', () => {
+      const wrapper = mount(App)
+      const rightPanel = wrapper.find('[data-testid="right-panel"]')
+      expect(rightPanel.text()).toContain('Preview')
+    })
+  })
 })

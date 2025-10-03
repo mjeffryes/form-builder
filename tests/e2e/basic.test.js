@@ -11,3 +11,17 @@ test('app loads and displays Form Builder heading', async ({ page }) => {
   const heading = page.getByRole('heading', { name: 'Form Builder' })
   await expect(heading).toBeVisible()
 })
+
+test('displays split-panel layout', async ({ page }) => {
+  await page.goto('/')
+
+  // Check left panel exists and has content
+  const leftPanel = page.getByTestId('left-panel')
+  await expect(leftPanel).toBeVisible()
+  await expect(leftPanel).toContainText('Editors')
+
+  // Check right panel exists and has content
+  const rightPanel = page.getByTestId('right-panel')
+  await expect(rightPanel).toBeVisible()
+  await expect(rightPanel).toContainText('Preview')
+})

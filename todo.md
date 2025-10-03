@@ -12,12 +12,12 @@ This file tracks the implementation progress for the Form Builder project.
 - [x] Step 5: JSON Validator Service
 
 ### Phase 2: Core Editing
-- [ ] Step 6: Basic App Layout Component
-- [ ] Step 7: JSON Editor Component (Display Only)
-- [ ] Step 8: Editor Validation Integration
-- [ ] Step 9: Code Editor Integration (Monaco or CodeMirror)
-- [ ] Step 10: Three-Editor Layout (Accordion Panel)
-- [ ] Step 11: JSONForms Preview Component
+- [x] Step 6: Basic App Layout Component
+- [ ] Step 7: JSONForms Preview Component
+- [ ] Step 8: JSON Editor Component (Display Only)
+- [ ] Step 9: Editor Validation Integration
+- [ ] Step 10: Code Editor Integration (Monaco or CodeMirror)
+- [ ] Step 11: Three-Editor Layout (Accordion Panel)
 - [ ] Step 12: Wire Editors to Preview in App
 
 ### Phase 3: Schema Generation
@@ -42,7 +42,7 @@ This file tracks the implementation progress for the Form Builder project.
 - [ ] Step 27: Final Polish & E2E Testing
 
 ## Current Step
-**Step 6: Basic App Layout Component**
+**Step 7: JSONForms Preview Component**
 
 ## Notes
 - Each step should be completed before moving to the next
@@ -57,3 +57,6 @@ This file tracks the implementation progress for the Form Builder project.
 - [x] Step 3: Project Model & Repository
 - [x] Step 4: Default Template Data
 - [x] Step 5: JSON Validator Service
+
+### Phase 2: Core Editing (In Progress)
+- [x] Step 6: Basic App Layout Component
