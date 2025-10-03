@@ -1,26 +1,30 @@
 <!-- Live form preview component using JSONForms -->
 <template>
   <div class="form-preview relative">
-    <!-- Error State -->
-    <div v-if="error" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
-      <p class="text-red-800 dark:text-red-200 font-semibold">Error</p>
-      <p class="text-red-600 dark:text-red-400 text-sm mt-1">{{ error }}</p>
-    </div>
-
-    <!-- JSONForms Renderer -->
-    <div v-else-if="parsedSchema" class="jsonforms-container">
+    <!-- JSONForms Renderer (with last valid state) -->
+    <div v-if="lastValidSchema" class="jsonforms-container">
       <json-forms
-        :data="parsedData"
-        :schema="parsedSchema"
-        :uischema="parsedUiSchema"
+        :data="lastValidData"
+        :schema="lastValidSchema"
+        :uischema="lastValidUiSchema"
         :renderers="renderers"
         @change="handleChange"
       />
+
+      <!-- Show validation errors from JSONForms -->
+      <div v-if="validationErrors.length > 0" class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+        <p class="text-yellow-800 dark:text-yellow-200 font-semibold text-sm">Validation Errors:</p>
+        <ul class="mt-2 space-y-1">
+          <li v-for="(error, index) in validationErrors" :key="index" class="text-yellow-700 dark:text-yellow-300 text-xs">
+            • {{ error.message }} <span v-if="error.instancePath" class="text-yellow-600 dark:text-yellow-400">({{ error.instancePath }})</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Frozen Overlay -->
     <div
-      v-if="frozen && !error"
+      v-if="frozen"
       data-testid="frozen-overlay"
       class="absolute inset-0 bg-gray-900/10 dark:bg-gray-900/30 backdrop-blur-sm flex items-center justify-center"
     >
@@ -37,9 +41,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { JsonForms } from '@jsonforms/vue'
 import { vanillaRenderers } from '@jsonforms/vue-vanilla'
+import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 
 const props = defineProps({
   jsonSchema: {
@@ -62,47 +68,82 @@ const props = defineProps({
 
 const renderers = vanillaRenderers
 
-const error = ref(null)
-const parsedSchema = ref(null)
-const parsedUiSchema = ref(null)
-const parsedData = ref(null)
+// Store last valid state
+const lastValidSchema = ref(null)
+const lastValidUiSchema = ref(null)
+const lastValidData = ref(null)
+const validationErrors = ref([])
 
-// Parse JSON strings safely
+// AJV validator for schema validation
+const ajv = new Ajv({ allErrors: true })
+addFormats(ajv)
+
+// Parse JSON strings safely and update only if valid
 function parseProps() {
-  error.value = null
-
-  try {
-    parsedSchema.value = JSON.parse(props.jsonSchema)
-  } catch (e) {
-    error.value = `Invalid JSON Schema: ${e.message}`
+  // Don't update if frozen
+  if (props.frozen) {
     return
   }
 
+  let schema, uiSchema, data
+
   try {
-    parsedUiSchema.value = JSON.parse(props.uiSchema)
+    schema = JSON.parse(props.jsonSchema)
   } catch (e) {
-    error.value = `Invalid UI Schema: ${e.message}`
-    return
+    return // Keep last valid state
   }
 
   try {
-    parsedData.value = JSON.parse(props.data)
+    uiSchema = JSON.parse(props.uiSchema)
   } catch (e) {
-    error.value = `Invalid Data: ${e.message}`
-    return
+    return // Keep last valid state
+  }
+
+  try {
+    data = JSON.parse(props.data)
+  } catch (e) {
+    return // Keep last valid state
+  }
+
+  // All parsed successfully, update state
+  lastValidSchema.value = schema
+  lastValidUiSchema.value = uiSchema
+  lastValidData.value = data
+
+  // Validate data against schema
+  validateData(schema, data)
+}
+
+// Validate data against schema
+function validateData(schema, data) {
+  validationErrors.value = []
+
+  try {
+    const validate = ajv.compile(schema)
+    const valid = validate(data)
+
+    if (!valid && validate.errors) {
+      validationErrors.value = validate.errors
+    }
+  } catch (e) {
+    // Schema compilation error, ignore for now
   }
 }
 
-// Handle data changes from the form (preview only, don't emit back)
+// Handle data changes from the form
 function handleChange(event) {
-  // In preview mode, we don't need to do anything with changes
-  // This is just to prevent errors
+  // Update data and revalidate
+  if (event.data) {
+    lastValidData.value = event.data
+    validateData(lastValidSchema.value, event.data)
+  }
 }
 
-// Parse props on mount and when they change
+// Parse props on mount
 parseProps()
 
-watch([() => props.jsonSchema, () => props.uiSchema, () => props.data], () => {
+// Watch for prop changes
+watch([() => props.jsonSchema, () => props.uiSchema, () => props.data, () => props.frozen], () => {
   parseProps()
 })
 </script>

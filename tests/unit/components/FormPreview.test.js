@@ -78,40 +78,55 @@ describe('FormPreview.vue', () => {
   })
 
   describe('error handling', () => {
-    it('shows error message when schema cannot be parsed', () => {
+    it('maintains last valid state when schema cannot be parsed', () => {
       const wrapper = mount(FormPreview, {
         props: {
-          jsonSchema: '{invalid json}',
+          jsonSchema: validSchema,
           uiSchema: validUiSchema,
           data: validData
         }
       })
 
-      expect(wrapper.text()).toContain('Error')
+      // Should render initially
+      expect(wrapper.find('.jsonforms-container').exists()).toBe(true)
+
+      // Update with invalid schema
+      wrapper.setProps({ jsonSchema: '{invalid json}' })
+
+      // Should still show last valid state (not error)
+      expect(wrapper.find('.jsonforms-container').exists()).toBe(true)
     })
 
-    it('shows error message when uiSchema cannot be parsed', () => {
-      const wrapper = mount(FormPreview, {
-        props: {
-          jsonSchema: validSchema,
-          uiSchema: '{invalid}',
-          data: validData
-        }
-      })
-
-      expect(wrapper.text()).toContain('Error')
-    })
-
-    it('shows error message when data cannot be parsed', () => {
+    it('maintains last valid state when uiSchema cannot be parsed', () => {
       const wrapper = mount(FormPreview, {
         props: {
           jsonSchema: validSchema,
           uiSchema: validUiSchema,
-          data: '{bad data}'
+          data: validData
         }
       })
 
-      expect(wrapper.text()).toContain('Error')
+      expect(wrapper.find('.jsonforms-container').exists()).toBe(true)
+
+      wrapper.setProps({ uiSchema: '{invalid}' })
+
+      expect(wrapper.find('.jsonforms-container').exists()).toBe(true)
+    })
+
+    it('maintains last valid state when data cannot be parsed', () => {
+      const wrapper = mount(FormPreview, {
+        props: {
+          jsonSchema: validSchema,
+          uiSchema: validUiSchema,
+          data: validData
+        }
+      })
+
+      expect(wrapper.find('.jsonforms-container').exists()).toBe(true)
+
+      wrapper.setProps({ data: '{bad data}' })
+
+      expect(wrapper.find('.jsonforms-container').exists()).toBe(true)
     })
 
     it('handles empty schema gracefully', () => {
