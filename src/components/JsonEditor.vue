@@ -3,6 +3,7 @@
   <div class="json-editor flex flex-col h-full">
     <!-- Header -->
     <div
+      v-if="!hideHeader"
       class="editor-header px-4 py-2 border-b flex items-center justify-between"
       :class="validationResult.valid
         ? 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
@@ -21,6 +22,24 @@
         data-testid="revert-button"
         @click="revert"
         class="ml-2 px-3 py-1 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-800 hover:bg-red-100 dark:hover:bg-red-700 rounded border border-red-200 dark:border-red-600"
+      >
+        Revert
+      </button>
+    </div>
+
+    <!-- Inline error for hideHeader mode -->
+    <div
+      v-if="hideHeader && !validationResult.valid"
+      class="px-2 py-1 bg-red-100 dark:bg-red-900 border-b border-red-300 dark:border-red-700 flex items-center justify-between"
+    >
+      <p class="text-xs text-red-600 dark:text-red-400">
+        Error: {{ validationResult.error }}
+      </p>
+      <button
+        v-if="lastValidContent"
+        data-testid="revert-button"
+        @click="revert"
+        class="ml-2 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-800 hover:bg-red-100 dark:hover:bg-red-700 rounded"
       >
         Revert
       </button>
@@ -54,6 +73,10 @@ const props = defineProps({
     required: true
   },
   readonly: {
+    type: Boolean,
+    default: false
+  },
+  hideHeader: {
     type: Boolean,
     default: false
   }

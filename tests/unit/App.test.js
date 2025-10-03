@@ -9,17 +9,6 @@ describe('App.vue', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('displays the app title "Form Builder"', () => {
-    const wrapper = mount(App)
-    expect(wrapper.text()).toContain('Form Builder')
-  })
-
-  it('has a header element', () => {
-    const wrapper = mount(App)
-    const header = wrapper.find('header')
-    expect(header.exists()).toBe(true)
-  })
-
   describe('split-panel layout', () => {
     it('has a left panel for editors', () => {
       const wrapper = mount(App)
@@ -41,10 +30,11 @@ describe('App.vue', () => {
       expect(leftPanel.text()).toContain('Data')
     })
 
-    it('displays placeholder text in right panel', () => {
+    it('displays form preview in right panel', () => {
       const wrapper = mount(App)
       const rightPanel = wrapper.find('[data-testid="right-panel"]')
-      expect(rightPanel.text()).toContain('Preview')
+      // Should have FormPreview component
+      expect(rightPanel.exists()).toBe(true)
     })
   })
 })

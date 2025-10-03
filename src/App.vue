@@ -1,14 +1,6 @@
 <!-- Main Form Builder application component -->
 <template>
   <div id="app" class="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
-    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-      <div class="px-6 py-4">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-          Form Builder
-        </h1>
-      </div>
-    </header>
-
     <main class="flex-1 flex overflow-hidden">
       <!-- Left Panel: Editors -->
       <div
@@ -27,11 +19,8 @@
         data-testid="right-panel"
         class="w-1/2 bg-gray-50 dark:bg-gray-900 overflow-auto"
       >
-        <div class="p-6">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Preview
-          </h2>
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="p-4">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <FormPreview
               :json-schema="jsonSchema"
               :ui-schema="uiSchema"

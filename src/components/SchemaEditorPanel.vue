@@ -7,14 +7,14 @@
       :style="{ height: expanded.schema ? `${heights.schema}px` : 'auto' }"
     >
       <div
-        class="editor-header bg-gray-50 dark:bg-gray-800 px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+        class="editor-header bg-gray-50 dark:bg-gray-800 px-3 py-1.5 flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700"
         @click="toggleSection('schema')"
       >
-        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+        <h3 class="text-xs font-medium text-gray-700 dark:text-gray-200">
           JSON Schema
         </h3>
         <svg
-          class="w-4 h-4 text-gray-500 transition-transform"
+          class="w-3 h-3 text-gray-500 transition-transform"
           :class="{ 'rotate-180': expanded.schema }"
           fill="none"
           stroke="currentColor"
@@ -23,10 +23,11 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
-      <div v-show="expanded.schema" class="editor-content" :style="{ height: `calc(${heights.schema}px - 40px)` }">
+      <div v-show="expanded.schema" class="editor-content" :style="{ height: `calc(${heights.schema}px - 28px)` }">
         <JsonEditor
           :content="jsonSchema"
           title="JSON Schema"
+          hide-header
           @update:content="$emit('update:jsonSchema', $event)"
         />
         <div
@@ -42,14 +43,14 @@
       :style="{ height: expanded.uiSchema ? `${heights.uiSchema}px` : 'auto' }"
     >
       <div
-        class="editor-header bg-gray-50 dark:bg-gray-800 px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+        class="editor-header bg-gray-50 dark:bg-gray-800 px-3 py-1.5 flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700"
         @click="toggleSection('uiSchema')"
       >
-        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+        <h3 class="text-xs font-medium text-gray-700 dark:text-gray-200">
           UI Schema
         </h3>
         <svg
-          class="w-4 h-4 text-gray-500 transition-transform"
+          class="w-3 h-3 text-gray-500 transition-transform"
           :class="{ 'rotate-180': expanded.uiSchema }"
           fill="none"
           stroke="currentColor"
@@ -58,10 +59,11 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
-      <div v-show="expanded.uiSchema" class="editor-content" :style="{ height: `calc(${heights.uiSchema}px - 40px)` }">
+      <div v-show="expanded.uiSchema" class="editor-content" :style="{ height: `calc(${heights.uiSchema}px - 28px)` }">
         <JsonEditor
           :content="uiSchema"
           title="UI Schema"
+          hide-header
           @update:content="$emit('update:uiSchema', $event)"
         />
         <div
@@ -77,14 +79,14 @@
       :style="{ height: expanded.data ? `${heights.data}px` : 'auto' }"
     >
       <div
-        class="editor-header bg-gray-50 dark:bg-gray-800 px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+        class="editor-header bg-gray-50 dark:bg-gray-800 px-3 py-1.5 flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700"
         @click="toggleSection('data')"
       >
-        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+        <h3 class="text-xs font-medium text-gray-700 dark:text-gray-200">
           Data
         </h3>
         <svg
-          class="w-4 h-4 text-gray-500 transition-transform"
+          class="w-3 h-3 text-gray-500 transition-transform"
           :class="{ 'rotate-180': expanded.data }"
           fill="none"
           stroke="currentColor"
@@ -97,6 +99,7 @@
         <JsonEditor
           :content="data"
           title="Data"
+          hide-header
           @update:content="$emit('update:data', $event)"
         />
       </div>
