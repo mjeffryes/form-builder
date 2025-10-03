@@ -13,7 +13,7 @@ This file tracks the implementation progress for the Form Builder project.
 
 ### Phase 2: Core Editing
 - [x] Step 6: Basic App Layout Component
-- [ ] Step 7: JSONForms Preview Component
+- [x] Step 7: JSONForms Preview Component
 - [ ] Step 8: JSON Editor Component (Display Only)
 - [ ] Step 9: Editor Validation Integration
 - [ ] Step 10: Code Editor Integration (Monaco or CodeMirror)
@@ -42,7 +42,7 @@ This file tracks the implementation progress for the Form Builder project.
 - [ ] Step 27: Final Polish & E2E Testing
 
 ## Current Step
-**Step 7: JSONForms Preview Component**
+**Step 8: JSON Editor Component (Display Only)**
 
 ## Notes
 - Each step should be completed before moving to the next
@@ -60,3 +60,4 @@ This file tracks the implementation progress for the Form Builder project.
 
 ### Phase 2: Core Editing (In Progress)
 - [x] Step 6: Basic App Layout Component
+- [x] Step 7: JSONForms Preview Component
