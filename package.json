@@ -16,6 +16,8 @@
     "@types/bun": "latest",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/test-utils": "^2.4.6",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "autoprefixer": "^10.4.21",
     "happy-dom": "^19.0.2",
     "postcss": "^8.5.6",
