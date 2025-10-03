@@ -34,9 +34,13 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Preview
           </h2>
-          <p class="text-gray-600 dark:text-gray-400">
-            Form preview will appear here
-          </p>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <FormPreview
+              :json-schema="DEFAULT_JSON_SCHEMA"
+              :ui-schema="DEFAULT_UI_SCHEMA"
+              :data="DEFAULT_DATA"
+            />
+          </div>
         </div>
       </div>
     </main>
@@ -44,6 +48,8 @@
 </template>
 
 <script setup>
+import FormPreview from './components/FormPreview.vue'
+import { DEFAULT_JSON_SCHEMA, DEFAULT_UI_SCHEMA, DEFAULT_DATA } from './data/defaultTemplate'
 </script>
 
 <style>
