@@ -33,10 +33,12 @@ describe('App.vue', () => {
       expect(rightPanel.exists()).toBe(true)
     })
 
-    it('displays placeholder text in left panel', () => {
+    it('displays editors in left panel', () => {
       const wrapper = mount(App)
       const leftPanel = wrapper.find('[data-testid="left-panel"]')
-      expect(leftPanel.text()).toContain('Editors')
+      expect(leftPanel.text()).toContain('JSON Schema')
+      expect(leftPanel.text()).toContain('UI Schema')
+      expect(leftPanel.text()).toContain('Data')
     })
 
     it('displays placeholder text in right panel', () => {
