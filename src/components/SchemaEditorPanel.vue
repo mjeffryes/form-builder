@@ -201,7 +201,7 @@ function stopResize() {
 }
 
 .resize-handle:hover {
-  background: theme('colors.blue.500');
+  background-color: --blue-1;
 }
 
 .rotate-180 {

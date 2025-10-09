@@ -157,4 +157,5 @@ watch([() => props.jsonSchema, () => props.uiSchema, () => props.data, () => pro
 .jsonforms-container {
   padding: 1rem;
 }
+
 </style>
