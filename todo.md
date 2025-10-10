@@ -20,11 +20,11 @@ This file tracks the implementation progress for the Form Builder project.
 - [x] Step 11: Three-Editor Layout (Accordion Panel)
 - [x] Step 12: Wire Editors to Preview in App
 
-### Phase 3: Schema Generation
-- [ ] Step 13: Basic Type Inference Service
-- [ ] Step 14: Format Detection (Email, Date)
-- [ ] Step 15: UI Schema Generation
-- [ ] Step 16: Schema Generation Service Integration
+### Phase 3: Schema Generation (In Progress)
+- [x] Step 13: Basic Type Inference Service
+- [x] Step 14: Format Detection (Email, Date)
+- [x] Step 15: UI Schema Generation
+- [x] Step 16: Schema Generation Service Integration
 - [ ] Step 17: Data Paste Workflow with Confirmation
 
 ### Phase 4: Project Management
@@ -42,7 +42,7 @@ This file tracks the implementation progress for the Form Builder project.
 - [ ] Step 27: Final Polish & E2E Testing
 
 ## Current Step
-**Step 13: Editor Validation Integration**
+**Step 17: Data Paste Workflow with Confirmation**
 
 ## Notes
 - Each step should be completed before moving to the next
