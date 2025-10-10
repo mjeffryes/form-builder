@@ -33,7 +33,7 @@ describe('App.vue', () => {
     it('displays form preview in right panel', () => {
       const wrapper = mount(App)
       const rightPanel = wrapper.find('[data-testid="right-panel"]')
-      // Should have FormPreview component
+      // TODO: Should have FormPreview component
       expect(rightPanel.exists()).toBe(true)
     })
   })

@@ -22,12 +22,13 @@
       ></div>
 
       <!-- Right Panel: Preview -->
-      <div
-        data-testid="right-panel"
-        class="flex-1 bg-gray-50 dark:bg-gray-900 overflow-auto"
-      >
-        <div class="p-4">
+      <div data-testid="right-panel" class="flex flex-1 flex-col" >
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">JsonForm Vue Playground</h2>
+        </div>
+        <div class="flex-1 p-4 bg-gray-50 dark:bg-gray-900 overflow-auto" >
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Form Preview</h2>
             <FormPreview
               :json-schema="jsonSchema"
               :ui-schema="uiSchema"
