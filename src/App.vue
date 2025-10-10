@@ -5,7 +5,8 @@
       <!-- Left Panel: Editors -->
       <div
         data-testid="left-panel"
-        class="w-1/2 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden"
+        class="border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden"
+        :style="{ width: `${editorPanelWidth}px` }"
       >
         <SchemaEditorPanel
           v-model:json-schema="jsonSchema"
@@ -14,10 +15,16 @@
         />
       </div>
 
+      <!-- Resize Handle -->
+      <div
+        class="resize-handle-vertical"
+        @mousedown="startResize"
+      ></div>
+
       <!-- Right Panel: Preview -->
       <div
         data-testid="right-panel"
-        class="w-1/2 bg-gray-50 dark:bg-gray-900 overflow-auto"
+        class="flex-1 bg-gray-50 dark:bg-gray-900 overflow-auto"
       >
         <div class="p-4">
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
@@ -35,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import FormPreview from './components/FormPreview.vue'
 import SchemaEditorPanel from './components/SchemaEditorPanel.vue'
 import { DEFAULT_JSON_SCHEMA, DEFAULT_UI_SCHEMA, DEFAULT_DATA } from './data/defaultTemplate'
@@ -46,16 +53,73 @@ const jsonSchema = ref(DEFAULT_JSON_SCHEMA)
 const uiSchema = ref(DEFAULT_UI_SCHEMA)
 const data = ref(DEFAULT_DATA)
 
+// Editor panel width state (default to 50em in pixels)
+const editorPanelWidth = ref(800) // 50em * 16px/em = 800px
+const isResizing = ref(false)
+const startX = ref(0)
+const startWidth = ref(0)
+
 // Validation state
 const allValid = computed(() => {
   return validateJson(jsonSchema.value).valid &&
          validateJson(uiSchema.value).valid &&
          validateJson(data.value).valid
 })
+
+// Initialize panel width on mount based on actual em to px conversion
+onMounted(() => {
+  // Calculate 50em in actual pixels based on root font size
+  const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
+  editorPanelWidth.value = Math.min(50 * rootFontSize, window.innerWidth * 0.5)
+})
+
+// Resize functionality
+function startResize(event) {
+  isResizing.value = true
+  startX.value = event.clientX
+  startWidth.value = editorPanelWidth.value
+
+  event.preventDefault()
+
+  document.addEventListener('mousemove', handleResize)
+  document.addEventListener('mouseup', stopResize)
+}
+
+function handleResize(event) {
+  if (isResizing.value) {
+    const delta = event.clientX - startX.value
+    const newWidth = startWidth.value + delta
+
+    // Set min width to 300px and max width to window width - 300px (to ensure right panel has space)
+    editorPanelWidth.value = Math.max(300, Math.min(window.innerWidth - 300, newWidth))
+  }
+}
+
+function stopResize() {
+  isResizing.value = false
+  document.removeEventListener('mousemove', handleResize)
+  document.removeEventListener('mouseup', stopResize)
+}
 </script>
 
 <style>
 #app {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.resize-handle-vertical {
+  width: 4px;
+  cursor: ew-resize;
+  background: transparent;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.resize-handle-vertical:hover {
+  background-color: var(--color-blue-1);
+}
+
+.resize-handle-vertical:active {
+  background-color: var(--color-blue-1);
 }
 </style>

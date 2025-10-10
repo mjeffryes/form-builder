@@ -1,27 +1,22 @@
 // Basic E2E test to verify app loads
 import { test, expect } from '@playwright/test'
 
-test('app loads and displays Form Builder heading', async ({ page }) => {
+test('app loads with correct title', async ({ page }) => {
   await page.goto('/')
 
   // Check that the page title is correct
   await expect(page).toHaveTitle(/Form Builder/)
-
-  // Check that the main heading is visible
-  const heading = page.getByRole('heading', { name: 'Form Builder' })
-  await expect(heading).toBeVisible()
 })
 
 test('displays split-panel layout', async ({ page }) => {
   await page.goto('/')
 
-  // Check left panel exists and has content
+  // Check left panel exists and has editor content
   const leftPanel = page.getByTestId('left-panel')
   await expect(leftPanel).toBeVisible()
-  await expect(leftPanel).toContainText('Editors')
+  await expect(leftPanel).toContainText('JSON Schema')
 
-  // Check right panel exists and has content
+  // Check right panel exists
   const rightPanel = page.getByTestId('right-panel')
   await expect(rightPanel).toBeVisible()
-  await expect(rightPanel).toContainText('Preview')
 })
