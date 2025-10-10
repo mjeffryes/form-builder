@@ -216,4 +216,164 @@ describe('TypeInferenceService', () => {
       expect(schema.$schema).toContain('json-schema.org');
     });
   });
+
+  describe('format detection', () => {
+    describe('email detection', () => {
+      it('should detect email format', () => {
+        const data = { email: 'user@example.com' };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.email.type).toBe('string');
+        expect(schema.properties.email.format).toBe('email');
+      });
+
+      it('should detect multiple email fields', () => {
+        const data = {
+          primaryEmail: 'user@example.com',
+          secondaryEmail: 'admin@test.org'
+        };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.primaryEmail.format).toBe('email');
+        expect(schema.properties.secondaryEmail.format).toBe('email');
+      });
+
+      it('should not detect invalid emails', () => {
+        const data = {
+          notEmail1: 'notanemail',
+          notEmail2: '@example.com',
+          notEmail3: 'user@',
+          notEmail4: 'user example.com'
+        };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.notEmail1.format).toBeUndefined();
+        expect(schema.properties.notEmail2.format).toBeUndefined();
+        expect(schema.properties.notEmail3.format).toBeUndefined();
+        expect(schema.properties.notEmail4.format).toBeUndefined();
+      });
+    });
+
+    describe('date detection', () => {
+      it('should detect ISO 8601 date format', () => {
+        const data = { birthdate: '2024-01-15' };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.birthdate.type).toBe('string');
+        expect(schema.properties.birthdate.format).toBe('date');
+      });
+
+      it('should detect ISO 8601 datetime format', () => {
+        const data = { createdAt: '2024-01-15T10:30:00' };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.createdAt.type).toBe('string');
+        expect(schema.properties.createdAt.format).toBe('date-time');
+      });
+
+      it('should detect ISO 8601 datetime with timezone', () => {
+        const data = { timestamp: '2024-01-15T10:30:00Z' };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.timestamp.format).toBe('date-time');
+      });
+
+      it('should detect MM/DD/YYYY format', () => {
+        const data = { date: '01/15/2024' };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.date.type).toBe('string');
+        expect(schema.properties.date.format).toBe('date');
+      });
+
+      it('should detect DD-MM-YYYY format', () => {
+        const data = { date: '15-01-2024' };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.date.type).toBe('string');
+        expect(schema.properties.date.format).toBe('date');
+      });
+
+      it('should not detect invalid date strings', () => {
+        const data = {
+          notDate1: '2024-13-45', // Invalid month/day
+          notDate2: 'January 15, 2024',
+          notDate3: '15/2024/01'
+        };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.notDate1.format).toBeUndefined();
+        expect(schema.properties.notDate2.format).toBeUndefined();
+        expect(schema.properties.notDate3.format).toBeUndefined();
+      });
+    });
+
+    describe('numeric strings', () => {
+      it('should treat numeric strings as strings', () => {
+        const data = {
+          zipCode: '12345',
+          phoneNumber: '5551234567',
+          leadingZeros: '00123'
+        };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.zipCode.type).toBe('string');
+        expect(schema.properties.phoneNumber.type).toBe('string');
+        expect(schema.properties.leadingZeros.type).toBe('string');
+      });
+
+      it('should not add format to numeric strings', () => {
+        const data = { code: '12345' };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.code.format).toBeUndefined();
+      });
+    });
+
+    describe('mixed formats', () => {
+      it('should detect multiple formats in same object', () => {
+        const data = {
+          name: 'John Doe',
+          email: 'john@example.com',
+          birthdate: '1990-05-15',
+          createdAt: '2024-01-15T10:30:00Z',
+          age: 34
+        };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.name.type).toBe('string');
+        expect(schema.properties.name.format).toBeUndefined();
+        expect(schema.properties.email.format).toBe('email');
+        expect(schema.properties.birthdate.format).toBe('date');
+        expect(schema.properties.createdAt.format).toBe('date-time');
+        expect(schema.properties.age.type).toBe('number');
+        expect(schema.properties.age.format).toBeUndefined();
+      });
+
+      it('should detect formats in nested objects', () => {
+        const data = {
+          user: {
+            email: 'user@example.com',
+            registeredOn: '2024-01-15'
+          }
+        };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.user.properties.email.format).toBe('email');
+        expect(schema.properties.user.properties.registeredOn.format).toBe('date');
+      });
+
+      it('should detect formats in arrays', () => {
+        const data = {
+          users: [
+            { email: 'user1@example.com' },
+            { email: 'user2@example.com' }
+          ]
+        };
+        const schema = inferSchema(data);
+
+        expect(schema.properties.users.items.properties.email.format).toBe('email');
+      });
+    });
+  });
 });

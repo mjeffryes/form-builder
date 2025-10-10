@@ -40,7 +40,7 @@ function inferType(value) {
 
   // Handle primitives
   if (typeof value === 'string') {
-    return { type: 'string' };
+    return inferStringType(value);
   }
 
   if (typeof value === 'number') {
@@ -118,4 +118,99 @@ function inferArraySchema(arr) {
     type: 'array',
     items: itemSchema
   };
+}
+
+/**
+ * Infers string type with format detection
+ * @param {string} value - The string value to analyze
+ * @returns {object} - String schema fragment with optional format
+ */
+function inferStringType(value) {
+  const schema = { type: 'string' };
+
+  // Detect email format
+  if (isEmail(value)) {
+    schema.format = 'email';
+    return schema;
+  }
+
+  // Detect date-time format (must check before date)
+  if (isDateTime(value)) {
+    schema.format = 'date-time';
+    return schema;
+  }
+
+  // Detect date format
+  if (isDate(value)) {
+    schema.format = 'date';
+    return schema;
+  }
+
+  // Return plain string (no format)
+  return schema;
+}
+
+/**
+ * Checks if a string looks like an email address
+ * @param {string} str - The string to check
+ * @returns {boolean} - True if it looks like an email
+ */
+function isEmail(str) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(str);
+}
+
+/**
+ * Checks if a string looks like a date
+ * @param {string} str - The string to check
+ * @returns {boolean} - True if it looks like a date
+ */
+function isDate(str) {
+  // ISO 8601 date: YYYY-MM-DD
+  const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (isoDateRegex.test(str)) {
+    return isValidDate(str);
+  }
+
+  // MM/DD/YYYY
+  const mmddyyyyRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+  if (mmddyyyyRegex.test(str)) {
+    return true;
+  }
+
+  // DD-MM-YYYY
+  const ddmmyyyyRegex = /^\d{2}-\d{2}-\d{4}$/;
+  if (ddmmyyyyRegex.test(str)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Checks if a string looks like a date-time
+ * @param {string} str - The string to check
+ * @returns {boolean} - True if it looks like a date-time
+ */
+function isDateTime(str) {
+  // ISO 8601 datetime: YYYY-MM-DDTHH:mm:ss with optional timezone
+  const isoDateTimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})?$/;
+  return isoDateTimeRegex.test(str);
+}
+
+/**
+ * Validates if an ISO date string represents a valid date
+ * @param {string} dateStr - ISO date string (YYYY-MM-DD)
+ * @returns {boolean} - True if valid
+ */
+function isValidDate(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+
+  // Basic validation
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+
+  // More thorough validation would check days per month
+  // but for inference purposes, basic check is sufficient
+  return true;
 }
