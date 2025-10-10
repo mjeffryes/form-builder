@@ -149,13 +149,34 @@ watch([() => props.jsonSchema, () => props.uiSchema, () => props.data, () => pro
 </script>
 
 <style>
+  @reference "../style.css";
 /* JSONForms vanilla styles are minimal, we rely on Tailwind for most styling */
 .form-preview {
   min-height: 200px;
 }
 
 .jsonforms-container {
-  padding: 1rem;
+  @apply p-4;
+}
+
+.horizontal-layout {
+  @apply flex flex-row gap-4;
+}
+
+.control {
+  @apply mb-2;
+  input, select {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-foreground;
+  }
+
+  input[type='checkbox'] {
+    @apply h-4 w-4 rounded border border-input bg-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .error {
+    @apply text-red-600 dark:text-red-400 text-xs mt-1;
+  }
+
 }
 
 </style>
