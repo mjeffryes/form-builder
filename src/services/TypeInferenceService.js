@@ -1,7 +1,7 @@
 // Service that infers JSON Schema from sample data
 // Detects types, structures, and generates valid JSON Schema
 
-const JSON_SCHEMA_DRAFT = 'https://json-schema.org/draft-07/schema#';
+const JSON_SCHEMA_DRAFT = 'http://json-schema.org/draft-07/schema#';
 
 /**
  * Infers JSON Schema from sample data

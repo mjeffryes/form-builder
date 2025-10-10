@@ -1,6 +1,13 @@
 <!-- Main Form Builder application component -->
 <template>
   <div id="app" class="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Schema Generation Modal -->
+    <GenerateSchemaModal
+      :open="showGenerateModal"
+      @confirm="handleGenerateConfirm"
+      @cancel="handleGenerateCancel"
+    />
+
     <main class="flex-1 flex overflow-hidden">
       <!-- Left Panel: Editors -->
       <div
@@ -43,11 +50,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import FormPreview from './components/FormPreview.vue'
 import SchemaEditorPanel from './components/SchemaEditorPanel.vue'
+import GenerateSchemaModal from './components/GenerateSchemaModal.vue'
 import { DEFAULT_JSON_SCHEMA, DEFAULT_UI_SCHEMA, DEFAULT_DATA } from './data/defaultTemplate'
 import { validateJson } from './services/JsonValidator'
+import { generateFromData } from './services/SchemaGenerationService'
 
 // Reactive state
 const jsonSchema = ref(DEFAULT_JSON_SCHEMA)
@@ -66,6 +75,79 @@ const allValid = computed(() => {
          validateJson(uiSchema.value).valid &&
          validateJson(data.value).valid
 })
+
+// Schema generation state
+const showGenerateModal = ref(false)
+const previousData = ref(data.value)
+
+// Check if schemas are non-empty (not default)
+const hasExistingSchemas = computed(() => {
+  return jsonSchema.value.trim() !== '' && uiSchema.value.trim() !== ''
+})
+
+// Watch for significant data changes
+watch(data, (newData) => {
+  // Check if data is valid JSON and has changed significantly
+  const validation = validateJson(newData)
+  if (!validation.valid) {
+    previousData.value = newData
+    return
+  }
+
+  const parsed = validation.parsed
+
+  // Check if it's an object (not array or primitive)
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    previousData.value = newData
+    return
+  }
+
+  // Check if data has changed significantly (more than just whitespace)
+  const currentNormalized = JSON.stringify(parsed)
+  let previousNormalized = ''
+  try {
+    const prevParsed = JSON.parse(previousData.value)
+    previousNormalized = JSON.stringify(prevParsed)
+  } catch {
+    // Previous data was invalid, treat as different
+  }
+
+  if (currentNormalized !== previousNormalized && Object.keys(parsed).length > 0) {
+    // Data has changed, check if we should show the modal
+    if (hasExistingSchemas.value) {
+      showGenerateModal.value = true
+    } else {
+      // No existing schemas, generate immediately
+      generateSchemas()
+    }
+  }
+
+  previousData.value = newData
+})
+
+// Generate schemas from data
+function generateSchemas() {
+  const result = generateFromData(data.value)
+
+  if (result.error) {
+    console.error('Failed to generate schemas:', result.error)
+    return
+  }
+
+  jsonSchema.value = result.jsonSchema
+  uiSchema.value = result.uiSchema
+}
+
+// Handle modal confirmation
+function handleGenerateConfirm() {
+  generateSchemas()
+  showGenerateModal.value = false
+}
+
+// Handle modal cancellation
+function handleGenerateCancel() {
+  showGenerateModal.value = false
+}
 
 // Initialize panel width on mount based on actual em to px conversion
 onMounted(() => {

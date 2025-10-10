@@ -61,12 +61,17 @@ export const DEFAULT_UI_SCHEMA = JSON.stringify({
       "scope": "#/properties/email"
     },
     {
-      "type": "Control",
-      "scope": "#/properties/age"
-    },
-    {
-      "type": "Control",
-      "scope": "#/properties/birthdate"
+      "type": "HorizontalLayout",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/age"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/birthdate"
+        }
+      ]
     },
     {
       "type": "Control",
