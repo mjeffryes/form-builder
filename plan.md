@@ -7,7 +7,7 @@ This plan breaks down the Form Builder app into small, testable increments follo
 - **Framework**: Vue 3 with Composition API
 - **Form Rendering**: @jsonforms/core, @jsonforms/vue
 - **Styling**: Tailwind CSS
-- **Code Editor**: Monaco Editor or CodeMirror
+- **Syntax Highlighting**: highlight.js
 - **Build Tool**: Vite
 - **Runtime**: Bun
 - **Testing**: Vitest (unit), Playwright (e2e)
@@ -549,21 +549,17 @@ TDD Approach:
 Success criteria: Validation works, error UI displays, revert functionality works, tests pass
 ```
 
-### Prompt 9: Code Editor Integration (Monaco or CodeMirror)
+### Prompt 9: Syntax highlighted Editor
 
 ```
-Replace textarea with a professional code editor (Monaco or CodeMirror).
+Replace textarea with a code editor with syntax hilighting (eg. highlight.js).
 
 Context: Monaco Editor provides excellent JSON editing with syntax highlighting, bracket matching, and auto-formatting. Integrate it while preserving all validation features.
 
 Requirements:
-1. Choose Monaco Editor or CodeMirror (recommend Monaco for JSON support)
-2. Install dependencies:
-   - Monaco: monaco-editor, @guolao/vue-monaco-editor (or alternative)
-   - CodeMirror: codemirror, vue-codemirror
+2. Install dependencies
 
 3. Update src/components/JsonEditor.vue:
-   - Replace textarea with Monaco/CodeMirror component
    - Configure for JSON mode
    - Enable syntax highlighting
    - Preserve all validation logic

@@ -96,7 +96,7 @@ A local form builder application built with Vue and @jsonforms/core that allows 
 - Vue.js
 - @jsonforms/core
 - Tailwind CSS
-- Code editor component (Monaco, CodeMirror, or similar)
+- Syntax highlighting for editors (eg. highlight.js)
 - ZIP generation library (JSZip or similar)
 
 - Vite and bun for build tooling
