@@ -87,7 +87,22 @@ describe('defaultTemplate', () => {
       const uiSchema = JSON.parse(DEFAULT_UI_SCHEMA)
 
       const fieldCount = Object.keys(schema.properties).length
-      const controlCount = uiSchema.elements.length
+
+      // Count all controls including nested ones in layouts
+      const countControls = (elements) => {
+        let count = 0
+        for (const element of elements) {
+          if (element.type === 'Control') {
+            count++
+          } else if (element.elements) {
+            // Recursively count controls in nested layouts
+            count += countControls(element.elements)
+          }
+        }
+        return count
+      }
+
+      const controlCount = countControls(uiSchema.elements)
 
       expect(controlCount).toBe(fieldCount)
     })

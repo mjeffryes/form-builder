@@ -1,4 +1,4 @@
-<!-- JSON editor component with syntax highlighting -->
+<!-- JSON editor component with CodeMirror -->
 <template>
   <div class="json-editor flex flex-col h-full">
     <!-- Header -->
@@ -45,38 +45,23 @@
       </button>
     </div>
 
-    <!-- Editor Area -->
-    <div class="editor-content flex-1 relative">
-      <!-- Syntax highlighted overlay -->
-      <pre
-        class="syntax-highlight absolute inset-0 p-4 font-mono text-sm overflow-auto pointer-events-none"
-        :class="{ 'opacity-0': !localContent }"
-      ><code class="language-json" v-html="highlightedCode"></code></pre>
-
-      <!-- Actual textarea -->
-      <textarea
-        v-model="localContent"
-        :readonly="readonly"
-        @input="handleInput"
-        @scroll="syncScroll"
-        ref="textareaRef"
-        class="w-full h-full p-4 font-mono text-sm bg-transparent text-transparent caret-gray-900 dark:caret-gray-100 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none relative z-10"
-        :class="{ 'cursor-not-allowed': readonly }"
-        spellcheck="false"
-      ></textarea>
-    </div>
+    <!-- CodeMirror Editor -->
+    <div ref="editorContainer" class="editor-content flex-1 overflow-hidden"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine } from '@codemirror/view'
+import { EditorState, Compartment } from '@codemirror/state'
+import { json } from '@codemirror/lang-json'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
+import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language'
+import { lintKeymap } from '@codemirror/lint'
 import { validateJson } from '@/services/JsonValidator'
-import hljs from 'highlight.js/lib/core'
-import json from 'highlight.js/lib/languages/json'
-import 'highlight.js/styles/atom-one-light.css'
-
-// Register JSON language
-hljs.registerLanguage('json', json)
 
 const props = defineProps({
   content: {
@@ -99,34 +84,15 @@ const props = defineProps({
 
 const emit = defineEmits(['update:content', 'validation-change'])
 
-const localContent = ref(props.content)
+const editorContainer = ref(null)
 const validationResult = ref({ valid: true })
 const lastValidContent = ref(props.content)
-const textareaRef = ref(null)
-
-// Debounce timer
+let editorView = null
 let debounceTimer = null
 
-// Computed highlighted code
-const highlightedCode = computed(() => {
-  try {
-    return hljs.highlight(localContent.value, { language: 'json' }).value
-  } catch (e) {
-    // If highlighting fails, return escaped plain text
-    return localContent.value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-  }
-})
-
-// Sync scroll between textarea and highlight overlay
-function syncScroll(event) {
-  const highlight = event.target.previousElementSibling
-  if (highlight) {
-    highlight.scrollTop = event.target.scrollTop
-    highlight.scrollLeft = event.target.scrollLeft
-  }
+// Detect dark mode
+const isDarkMode = () => {
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 }
 
 function validateContent(content) {
@@ -144,33 +110,160 @@ function validateContent(content) {
   return result
 }
 
-function handleInput() {
-  // Clear existing timer
-  if (debounceTimer) {
-    clearTimeout(debounceTimer)
+function handleEditorUpdate(update) {
+  if (update.docChanged) {
+    const content = update.state.doc.toString()
+
+    // Clear existing timer
+    if (debounceTimer) {
+      clearTimeout(debounceTimer)
+    }
+
+    // Validate immediately for UI feedback
+    validateContent(content)
+
+    // Set new timer for emit
+    debounceTimer = setTimeout(() => {
+      emit('update:content', content)
+    }, 300)
   }
-
-  // Validate immediately for UI feedback
-  validateContent(localContent.value)
-
-  // Set new timer for emit
-  debounceTimer = setTimeout(() => {
-    emit('update:content', localContent.value)
-  }, 300)
 }
 
 function revert() {
-  localContent.value = lastValidContent.value
-  validateContent(localContent.value)
-  emit('update:content', localContent.value)
+  if (editorView && lastValidContent.value) {
+    const transaction = editorView.state.update({
+      changes: {
+        from: 0,
+        to: editorView.state.doc.length,
+        insert: lastValidContent.value
+      }
+    })
+    editorView.dispatch(transaction)
+    validateContent(lastValidContent.value)
+    emit('update:content', lastValidContent.value)
+  }
 }
 
-// Validate initial content
-validateContent(props.content)
+function updateEditorContent(newContent) {
+  if (editorView) {
+    const currentContent = editorView.state.doc.toString()
+    if (currentContent !== newContent) {
+      const transaction = editorView.state.update({
+        changes: {
+          from: 0,
+          to: editorView.state.doc.length,
+          insert: newContent
+        }
+      })
+      editorView.dispatch(transaction)
+    }
+  }
+}
 
-// Update local content when prop changes
+onMounted(() => {
+  if (!editorContainer.value) return
+
+  // Basic CodeMirror setup (equivalent to basicSetup)
+  const basicExtensions = [
+    lineNumbers(),
+    highlightActiveLineGutter(),
+    highlightSpecialChars(),
+    history(),
+    foldGutter(),
+    drawSelection(),
+    EditorState.allowMultipleSelections.of(true),
+    indentOnInput(),
+    syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+    bracketMatching(),
+    closeBrackets(),
+    autocompletion(),
+    highlightActiveLine(),
+    highlightSelectionMatches(),
+    keymap.of([
+      ...closeBracketsKeymap,
+      ...defaultKeymap,
+      ...searchKeymap,
+      ...historyKeymap,
+      ...foldKeymap,
+      ...completionKeymap,
+      ...lintKeymap
+    ])
+  ]
+
+  // Create CodeMirror extensions
+  const extensions = [
+    ...basicExtensions,
+    json(),
+    EditorView.updateListener.of(handleEditorUpdate),
+    EditorState.readOnly.of(props.readonly)
+  ]
+
+  // Add dark theme if in dark mode
+  if (isDarkMode()) {
+    extensions.push(oneDark)
+  }
+
+  // Create editor state
+  const startState = EditorState.create({
+    doc: props.content,
+    extensions
+  })
+
+  // Create editor view
+  editorView = new EditorView({
+    state: startState,
+    parent: editorContainer.value
+  })
+
+  // Validate initial content
+  validateContent(props.content)
+})
+
+onBeforeUnmount(() => {
+  if (editorView) {
+    editorView.destroy()
+  }
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+  }
+})
+
+// Update editor when prop changes
 watch(() => props.content, (newContent) => {
-  localContent.value = newContent
+  updateEditorContent(newContent)
   validateContent(newContent)
 })
+
+// Update readonly state
+watch(() => props.readonly, (newReadonly) => {
+  if (editorView) {
+    editorView.dispatch({
+      effects: EditorState.readOnly.reconfigure(EditorState.readOnly.of(newReadonly))
+    })
+  }
+})
 </script>
+
+<style>
+/* CodeMirror container styling */
+.editor-content .cm-editor {
+  height: 100%;
+  font-size: 14px;
+}
+
+.editor-content .cm-scroller {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+
+.editor-content .cm-gutters {
+  background-color: #f3f4f6;
+  border-right: 1px solid #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .editor-content .cm-gutters {
+    background-color: #374151;
+    border-right: 1px solid #4b5563;
+  }
+}
+</style>
