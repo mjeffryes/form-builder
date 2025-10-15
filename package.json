@@ -43,6 +43,7 @@
     "@jsonforms/vue": "^3.6.0",
     "@jsonforms/vue-vanilla": "^3.6.0",
     "@tailwindcss/vite": "^4.1.14",
-    "highlight.js": "^11.11.1"
+    "highlight.js": "^11.11.1",
+    "jszip": "^3.10.1"
   }
 }
