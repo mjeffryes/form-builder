@@ -30,7 +30,7 @@ This file tracks the implementation progress for the Form Builder project.
 ### Phase 4: Project Management
 - [x] Step 18: Project List Service
 - [x] Step 19: Auto-Save Current Work
-- [ ] Step 20: Save Project Modal
+- [x] Step 20: Save Project Modal
 - [ ] Step 21: Project List View
 - [ ] Step 22: Navigation & Project Switching
 
@@ -42,7 +42,7 @@ This file tracks the implementation progress for the Form Builder project.
 - [ ] Step 27: Final Polish & E2E Testing
 
 ## Current Step
-**Step 20: Save Project Modal**
+**Step 21: Project List View**
 
 ## Notes
 - Each step should be completed before moving to the next
