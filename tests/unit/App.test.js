@@ -155,4 +155,61 @@ describe('App.vue', () => {
       expect(saved.data).toBe('{"name":"test"}')
     })
   })
+
+  describe('project management UI', () => {
+    beforeEach(() => {
+      localStorage.clear()
+    })
+
+    afterEach(() => {
+      localStorage.clear()
+    })
+
+    it('displays header with project name', () => {
+      const wrapper = mount(App)
+
+      const text = wrapper.text()
+      expect(text).toContain('Form Builder')
+      expect(text).toContain('Untitled')
+    })
+
+    it('shows Save As button', () => {
+      const wrapper = mount(App)
+
+      const buttons = wrapper.findAll('button')
+      const saveButton = buttons.some(btn => btn.text().includes('Save As'))
+      expect(saveButton).toBe(true)
+    })
+
+    it('shows Projects button', () => {
+      const wrapper = mount(App)
+
+      const buttons = wrapper.findAll('button')
+      const projectsButton = buttons.some(btn => btn.text().includes('Projects'))
+      expect(projectsButton).toBe(true)
+    })
+
+    it('updates project name after save', async () => {
+      const wrapper = mount(App)
+      await nextTick()
+
+      // Trigger save
+      wrapper.vm.handleSaveProject('My Test Project')
+      await nextTick()
+
+      expect(wrapper.text()).toContain('My Test Project')
+    })
+
+    it('loads saved projects on mount', async () => {
+      const repository = new ProjectRepository()
+      const { createProject } = await import('@/models/Project')
+      const project = createProject('Test Project', '{}', '{}', '{}')
+      repository.saveProject(project)
+
+      const wrapper = mount(App)
+      await nextTick()
+
+      expect(wrapper.vm.savedProjects.length).toBeGreaterThan(0)
+    })
+  })
 })
