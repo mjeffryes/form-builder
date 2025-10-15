@@ -1,7 +1,9 @@
 // Unit tests for main App component
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import App from '@/App.vue'
+import { ProjectRepository } from '@/services/ProjectRepository'
 
 describe('App.vue', () => {
   it('renders successfully', () => {
@@ -35,6 +37,122 @@ describe('App.vue', () => {
       const rightPanel = wrapper.find('[data-testid="right-panel"]')
       // TODO: Should have FormPreview component
       expect(rightPanel.exists()).toBe(true)
+    })
+  })
+
+  describe('auto-save functionality', () => {
+    let repository
+
+    beforeEach(() => {
+      localStorage.clear()
+      repository = new ProjectRepository()
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      localStorage.clear()
+      vi.restoreAllMocks()
+      vi.useRealTimers()
+    })
+
+    it('saves current work after changes with debouncing', async () => {
+      const wrapper = mount(App)
+      await nextTick()
+
+      // Get initial data
+      const initialCurrent = repository.getCurrent()
+
+      // Change the data
+      wrapper.vm.jsonSchema = '{"type":"string"}'
+      await nextTick()
+
+      // Should not save immediately (debounced)
+      expect(repository.getCurrent()).toEqual(initialCurrent)
+
+      // Advance timers past debounce delay (2 seconds)
+      await vi.advanceTimersByTimeAsync(2000)
+      await nextTick()
+
+      // Now it should be saved
+      const saved = repository.getCurrent()
+      expect(saved).not.toBeNull()
+      expect(saved.jsonSchema).toBe('{"type":"string"}')
+    })
+
+    it('does not save on every keystroke', async () => {
+      const wrapper = mount(App)
+      await nextTick()
+
+      // Make multiple rapid changes
+      wrapper.vm.jsonSchema = '{"type":"string"}'
+      await nextTick()
+      await vi.advanceTimersByTimeAsync(500)
+
+      wrapper.vm.jsonSchema = '{"type":"number"}'
+      await nextTick()
+      await vi.advanceTimersByTimeAsync(500)
+
+      wrapper.vm.jsonSchema = '{"type":"boolean"}'
+      await nextTick()
+      await vi.advanceTimersByTimeAsync(500)
+
+      // Should not have saved yet (total 1500ms < 2000ms)
+      let saved = repository.getCurrent()
+      // Either nothing saved yet, or it hasn't updated to the latest value
+      if (saved !== null) {
+        expect(saved.jsonSchema).not.toBe('{"type":"boolean"}')
+      }
+
+      // Wait for debounce to complete
+      await vi.advanceTimersByTimeAsync(2000)
+      await nextTick()
+
+      // Now it should be saved with the final value
+      saved = repository.getCurrent()
+      expect(saved).not.toBeNull()
+      expect(saved.jsonSchema).toBe('{"type":"boolean"}')
+    })
+
+    it('initializes with default template when no current project exists', () => {
+      const wrapper = mount(App)
+
+      // Should have default values
+      expect(wrapper.vm.jsonSchema).toBeTruthy()
+      expect(wrapper.vm.uiSchema).toBeTruthy()
+      expect(wrapper.vm.data).toBeTruthy()
+    })
+
+    it('initializes with saved current project when it exists', async () => {
+      // Save a current project first
+      repository.saveCurrent(
+        '{"type":"object","properties":{"test":{"type":"string"}}}',
+        '{"type":"VerticalLayout"}',
+        '{"test":"value"}'
+      )
+
+      // Mount app - should load from saved current
+      const wrapper = mount(App)
+      await nextTick()
+
+      expect(wrapper.vm.jsonSchema).toContain('"test"')
+      expect(wrapper.vm.data).toContain('"test":"value"')
+    })
+
+    it('saves all three editor values', async () => {
+      const wrapper = mount(App)
+      await nextTick()
+
+      wrapper.vm.jsonSchema = '{"type":"string"}'
+      wrapper.vm.uiSchema = '{"type":"Control"}'
+      wrapper.vm.data = '{"name":"test"}'
+
+      await vi.advanceTimersByTimeAsync(2000)
+      await nextTick()
+
+      const saved = repository.getCurrent()
+      expect(saved.jsonSchema).toBe('{"type":"string"}')
+      expect(saved.uiSchema).toBe('{"type":"Control"}')
+      expect(saved.data).toBe('{"name":"test"}')
     })
   })
 })

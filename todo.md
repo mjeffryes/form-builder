@@ -28,7 +28,7 @@ This file tracks the implementation progress for the Form Builder project.
 - [x] Step 17: Data Paste Workflow with Confirmation
 
 ### Phase 4: Project Management
-- [ ] Step 18: Project List Service
+- [x] Step 18: Project List Service
 - [ ] Step 19: Auto-Save Current Work
 - [ ] Step 20: Save Project Modal
 - [ ] Step 21: Project List View
@@ -42,7 +42,7 @@ This file tracks the implementation progress for the Form Builder project.
 - [ ] Step 27: Final Polish & E2E Testing
 
 ## Current Step
-**Step 18: Project List Service**
+**Step 19: Auto-Save Current Work**
 
 ## Notes
 - Each step should be completed before moving to the next

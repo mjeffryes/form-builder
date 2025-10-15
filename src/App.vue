@@ -57,6 +57,10 @@ import GenerateSchemaModal from './components/GenerateSchemaModal.vue'
 import { DEFAULT_JSON_SCHEMA, DEFAULT_UI_SCHEMA, DEFAULT_DATA } from './data/defaultTemplate'
 import { validateJson } from './services/JsonValidator'
 import { generateFromData } from './services/SchemaGenerationService'
+import { ProjectRepository } from './services/ProjectRepository'
+
+// Initialize repository
+const repository = new ProjectRepository()
 
 // Reactive state
 const jsonSchema = ref(DEFAULT_JSON_SCHEMA)
@@ -79,6 +83,9 @@ const allValid = computed(() => {
 // Schema generation state
 const showGenerateModal = ref(false)
 const previousData = ref(data.value)
+
+// Auto-save state
+let autoSaveTimeout = null
 
 // Check if schemas are non-empty (not default)
 const hasExistingSchemas = computed(() => {
@@ -149,11 +156,39 @@ function handleGenerateCancel() {
   showGenerateModal.value = false
 }
 
-// Initialize panel width on mount based on actual em to px conversion
+// Auto-save function with debouncing
+function saveCurrentWork() {
+  // Clear existing timeout
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout)
+  }
+
+  // Set new timeout (2 seconds debounce)
+  autoSaveTimeout = setTimeout(() => {
+    repository.saveCurrent(jsonSchema.value, uiSchema.value, data.value)
+  }, 2000)
+}
+
+// Watch for changes to trigger auto-save
+watch([jsonSchema, uiSchema, data], () => {
+  saveCurrentWork()
+})
+
+// Initialize on mount
 onMounted(() => {
   // Calculate 50em in actual pixels based on root font size
   const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
   editorPanelWidth.value = Math.min(50 * rootFontSize, window.innerWidth * 0.5)
+
+  // Load current work from localStorage if it exists
+  const current = repository.getCurrent()
+  if (current) {
+    jsonSchema.value = current.jsonSchema
+    uiSchema.value = current.uiSchema
+    data.value = current.data
+    // Update previousData to avoid triggering schema generation on load
+    previousData.value = current.data
+  }
 })
 
 // Resize functionality
