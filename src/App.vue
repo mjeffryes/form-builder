@@ -28,6 +28,9 @@
         <button class="btn btn-secondary" @click="showProjectList = !showProjectList">
           Projects
         </button>
+        <button class="btn btn-secondary" @click="handleExport">
+          Export
+        </button>
         <button class="btn btn-primary" @click="showSaveModal = true">
           Save As
         </button>
@@ -100,6 +103,7 @@ import { validateJson } from './services/JsonValidator'
 import { generateFromData } from './services/SchemaGenerationService'
 import { ProjectRepository } from './services/ProjectRepository'
 import { createProject } from './models/Project'
+import { exportAndDownload } from './services/ExportService'
 
 // Initialize repository
 const repository = new ProjectRepository()
@@ -288,6 +292,20 @@ function handleDeleteProject(projectId) {
   }
 
   loadSavedProjects()
+}
+
+// Export function
+async function handleExport() {
+  // Create a project object with current state
+  const projectName = currentProjectName.value || 'Untitled'
+  const project = createProject(
+    projectName,
+    jsonSchema.value,
+    uiSchema.value,
+    data.value
+  )
+
+  await exportAndDownload(project)
 }
 
 // Watch for changes to trigger auto-save

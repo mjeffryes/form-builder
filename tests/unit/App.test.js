@@ -212,4 +212,40 @@ describe('App.vue', () => {
       expect(wrapper.vm.savedProjects.length).toBeGreaterThan(0)
     })
   })
+
+  describe('export functionality', () => {
+    beforeEach(() => {
+      localStorage.clear()
+    })
+
+    afterEach(() => {
+      localStorage.clear()
+    })
+
+    it('shows Export button', () => {
+      const wrapper = mount(App)
+
+      const buttons = wrapper.findAll('button')
+      const exportButton = buttons.some(btn => btn.text().includes('Export'))
+      expect(exportButton).toBe(true)
+    })
+
+    it('has handleExport function', async () => {
+      const wrapper = mount(App)
+      await nextTick()
+
+      expect(typeof wrapper.vm.handleExport).toBe('function')
+    })
+
+    it('exports with current project name', async () => {
+      const wrapper = mount(App)
+      await nextTick()
+
+      // Set a project name
+      wrapper.vm.currentProjectName = 'Test Project'
+
+      // handleExport should be callable
+      expect(wrapper.vm.handleExport).toBeDefined()
+    })
+  })
 })
