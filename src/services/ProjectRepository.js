@@ -73,6 +73,26 @@ export class ProjectRepository {
   }
 
   /**
+   * Search projects by name (case-insensitive)
+   * @param {string} query - Search query
+   * @returns {Project[]} Filtered and sorted array of projects
+   */
+  searchProjects(query) {
+    const allProjects = this.getAllProjects()
+
+    // If query is empty, return all projects
+    if (!query || query.trim() === '') {
+      return allProjects
+    }
+
+    // Filter by name (case-insensitive contains)
+    const lowerQuery = query.toLowerCase()
+    return allProjects.filter(project =>
+      project.name.toLowerCase().includes(lowerQuery)
+    )
+  }
+
+  /**
    * Save current work-in-progress
    * @param {string} jsonSchema - JSON Schema string
    * @param {string} uiSchema - UI Schema string

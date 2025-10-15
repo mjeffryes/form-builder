@@ -171,6 +171,84 @@ describe('ProjectRepository', () => {
     })
   })
 
+  describe('searchProjects', () => {
+    it('returns all projects when query is empty', () => {
+      const project1 = createProject('Contact Form', '{}', '{}', '{}')
+      const project2 = createProject('Survey', '{}', '{}', '{}')
+
+      repository.saveProject(project1)
+      repository.saveProject(project2)
+
+      const results = repository.searchProjects('')
+
+      expect(results).toHaveLength(2)
+    })
+
+    it('filters projects by name (case-insensitive)', () => {
+      const project1 = createProject('Contact Form', '{}', '{}', '{}')
+      const project2 = createProject('Survey Form', '{}', '{}', '{}')
+      const project3 = createProject('User Registration', '{}', '{}', '{}')
+
+      repository.saveProject(project1)
+      repository.saveProject(project2)
+      repository.saveProject(project3)
+
+      const results = repository.searchProjects('form')
+
+      expect(results).toHaveLength(2)
+      expect(results.some(p => p.name === 'Contact Form')).toBe(true)
+      expect(results.some(p => p.name === 'Survey Form')).toBe(true)
+    })
+
+    it('is case-insensitive', () => {
+      const project = createProject('MyProject', '{}', '{}', '{}')
+      repository.saveProject(project)
+
+      expect(repository.searchProjects('myproject')).toHaveLength(1)
+      expect(repository.searchProjects('MYPROJECT')).toHaveLength(1)
+      expect(repository.searchProjects('MyProject')).toHaveLength(1)
+    })
+
+    it('returns empty array when no matches found', () => {
+      const project = createProject('Contact Form', '{}', '{}', '{}')
+      repository.saveProject(project)
+
+      const results = repository.searchProjects('nonexistent')
+
+      expect(results).toEqual([])
+    })
+
+    it('sorts results by lastModified descending', () => {
+      const old = createProject('Old Form', '{}', '{}', '{}')
+      old.lastModified = 1000
+
+      const newer = createProject('Newer Form', '{}', '{}', '{}')
+      newer.lastModified = 2000
+
+      const newest = createProject('Newest Form', '{}', '{}', '{}')
+      newest.lastModified = 3000
+
+      repository.saveProject(old)
+      repository.saveProject(newest)
+      repository.saveProject(newer)
+
+      const results = repository.searchProjects('form')
+
+      expect(results[0].name).toBe('Newest Form')
+      expect(results[1].name).toBe('Newer Form')
+      expect(results[2].name).toBe('Old Form')
+    })
+
+    it('handles partial matches', () => {
+      const project = createProject('Contact Form Builder', '{}', '{}', '{}')
+      repository.saveProject(project)
+
+      expect(repository.searchProjects('contact')).toHaveLength(1)
+      expect(repository.searchProjects('form')).toHaveLength(1)
+      expect(repository.searchProjects('builder')).toHaveLength(1)
+    })
+  })
+
   describe('edge cases', () => {
     it('handles projects with special characters in name', () => {
       const project = createProject('Test: "Special" & <Chars>', '{}', '{}', '{}')
