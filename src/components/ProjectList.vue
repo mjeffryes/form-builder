@@ -1,25 +1,25 @@
 <!-- Project list component for viewing and managing saved projects -->
 <template>
-  <div class="project-list">
-    <div class="list-header">
-      <h2 class="list-title">Saved Projects</h2>
-      <p class="project-count">
+  <div class="flex flex-col h-full bg-white dark:bg-gray-800">
+    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Saved Projects</h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
         {{ projects.length }} {{ projects.length === 1 ? 'project' : 'projects' }}
       </p>
     </div>
 
-    <div v-if="projects.length === 0" class="empty-state">
-      <p>No saved projects yet</p>
+    <div v-if="projects.length === 0" class="flex-1 flex items-center justify-center p-12">
+      <p class="text-sm text-gray-400 dark:text-gray-500">No saved projects yet</p>
     </div>
 
-    <div v-else class="project-items">
+    <div v-else class="flex-1 overflow-y-auto p-2">
       <div
         v-for="project in projects"
         :key="project.id"
-        class="project-item"
+        class="flex items-center justify-between p-4 mb-2 border border-gray-200 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all"
       >
-        <div class="project-info">
-          <div v-if="renamingId !== project.id" class="project-name">
+        <div class="flex-1 min-w-0">
+          <div v-if="renamingId !== project.id" class="font-medium text-sm text-gray-900 dark:text-gray-100 mb-1 break-words">
             {{ project.name }}
           </div>
           <input
@@ -27,47 +27,47 @@
             ref="renameInput"
             v-model="renameValue"
             type="text"
-            class="rename-input"
+            class="w-full px-2 py-1 text-sm font-medium border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             @keydown.enter="confirmRename(project.id)"
             @keydown.esc="cancelRename"
             @blur="cancelRename"
           />
-          <div class="project-meta">
+          <div class="text-xs text-gray-500 dark:text-gray-400">
             {{ formatDate(project.lastModified) }}
           </div>
         </div>
 
-        <div class="project-actions">
+        <div class="flex items-center gap-2 ml-4 flex-shrink-0">
           <template v-if="deletingId !== project.id">
             <button
-              class="btn btn-sm btn-primary"
+              class="px-2.5 py-1 text-xs font-medium rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
               @click="$emit('load', project.id)"
             >
               Load
             </button>
             <button
-              class="btn btn-sm btn-secondary"
+              class="px-2.5 py-1 text-xs font-medium rounded bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
               @click="startRename(project.id, project.name)"
             >
               Rename
             </button>
             <button
-              class="btn btn-sm btn-danger"
+              class="px-2.5 py-1 text-xs font-medium rounded bg-red-600 text-white hover:bg-red-700 transition-colors"
               @click="startDelete(project.id)"
             >
               Delete
             </button>
           </template>
           <template v-else>
-            <span class="delete-confirm-text">Delete?</span>
+            <span class="text-sm font-medium text-red-600 dark:text-red-400">Delete?</span>
             <button
-              class="btn btn-sm btn-danger"
+              class="px-2.5 py-1 text-xs font-medium rounded bg-red-600 text-white hover:bg-red-700 transition-colors"
               @click="confirmDelete(project.id)"
             >
               Yes
             </button>
             <button
-              class="btn btn-sm btn-secondary"
+              class="px-2.5 py-1 text-xs font-medium rounded bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors"
               @click="cancelDelete"
             >
               No
@@ -161,214 +161,3 @@ function formatDate(timestamp) {
   }
 }
 </script>
-
-<style scoped>
-.project-list {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: white;
-}
-
-.list-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.list-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.project-count {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1.5rem;
-  color: #9ca3af;
-  font-size: 0.875rem;
-}
-
-.project-items {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem;
-}
-
-.project-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  margin-bottom: 0.5rem;
-  background: white;
-  transition: all 0.15s;
-}
-
-.project-item:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.project-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.project-name {
-  font-weight: 500;
-  color: #111827;
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-  word-break: break-word;
-}
-
-.project-meta {
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
-.rename-input {
-  width: 100%;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #3b82f6;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  outline: none;
-}
-
-.rename-input:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.project-actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-shrink: 0;
-  margin-left: 1rem;
-}
-
-.delete-confirm-text {
-  font-size: 0.875rem;
-  color: #dc2626;
-  font-weight: 500;
-}
-
-.btn {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 0.25rem;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.btn-sm {
-  padding: 0.25rem 0.625rem;
-  font-size: 0.75rem;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #2563eb;
-}
-
-.btn-secondary {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-
-.btn-secondary:hover {
-  background-color: #f9fafb;
-}
-
-.btn-danger {
-  background-color: #dc2626;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #b91c1c;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .project-list {
-    background: #1f2937;
-  }
-
-  .list-header {
-    border-bottom-color: #374151;
-  }
-
-  .list-title {
-    color: #f9fafb;
-  }
-
-  .project-count {
-    color: #9ca3af;
-  }
-
-  .empty-state {
-    color: #6b7280;
-  }
-
-  .project-item {
-    background: #374151;
-    border-color: #4b5563;
-  }
-
-  .project-item:hover {
-    border-color: #6b7280;
-  }
-
-  .project-name {
-    color: #f9fafb;
-  }
-
-  .project-meta {
-    color: #9ca3af;
-  }
-
-  .rename-input {
-    background-color: #1f2937;
-    color: #f9fafb;
-    border-color: #3b82f6;
-  }
-
-  .btn-secondary {
-    background-color: #374151;
-    color: #d1d5db;
-    border-color: #4b5563;
-  }
-
-  .btn-secondary:hover {
-    background-color: #4b5563;
-  }
-}
-</style>
