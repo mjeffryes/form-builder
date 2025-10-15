@@ -248,4 +248,35 @@ describe('App.vue', () => {
       expect(wrapper.vm.handleExport).toBeDefined()
     })
   })
+
+  describe('dark mode', () => {
+    beforeEach(() => {
+      localStorage.clear()
+      document.documentElement.classList.remove('dark')
+    })
+
+    afterEach(() => {
+      localStorage.clear()
+      document.documentElement.classList.remove('dark')
+    })
+
+    it('shows dark mode toggle button', () => {
+      const wrapper = mount(App)
+
+      const buttons = wrapper.findAll('button')
+      // Button should have emoji icon
+      const darkModeButton = buttons.some(btn => {
+        const text = btn.text()
+        return text.includes('☀️') || text.includes('🌙')
+      })
+      expect(darkModeButton).toBe(true)
+    })
+
+    it('has isDark and toggleDarkMode from composable', () => {
+      const wrapper = mount(App)
+
+      expect(wrapper.vm.isDark).toBeDefined()
+      expect(typeof wrapper.vm.toggleDarkMode).toBe('function')
+    })
+  })
 })

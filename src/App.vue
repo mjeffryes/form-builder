@@ -25,6 +25,15 @@
         </div>
       </div>
       <div class="header-actions">
+        <button
+          class="btn btn-icon"
+          @click="toggleDarkMode"
+          :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          title="Toggle dark mode"
+        >
+          <span v-if="isDark">☀️</span>
+          <span v-else>🌙</span>
+        </button>
         <button class="btn btn-secondary" @click="showProjectList = !showProjectList">
           Projects
         </button>
@@ -104,9 +113,13 @@ import { generateFromData } from './services/SchemaGenerationService'
 import { ProjectRepository } from './services/ProjectRepository'
 import { createProject } from './models/Project'
 import { exportAndDownload } from './services/ExportService'
+import { useDarkMode } from './composables/useDarkMode'
 
 // Initialize repository
 const repository = new ProjectRepository()
+
+// Dark mode
+const { isDark, toggle: toggleDarkMode } = useDarkMode()
 
 // Reactive state
 const jsonSchema = ref(DEFAULT_JSON_SCHEMA)
@@ -415,6 +428,20 @@ function stopResize() {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.btn-icon {
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background-color: #f9fafb;
+}
+
 .btn-primary {
   background-color: #3b82f6;
   color: white;
@@ -479,6 +506,15 @@ function stopResize() {
   }
 
   .btn-secondary:hover {
+    background-color: #4b5563;
+  }
+
+  .btn-icon {
+    background-color: transparent;
+    border-color: #4b5563;
+  }
+
+  .btn-icon:hover {
     background-color: #4b5563;
   }
 
