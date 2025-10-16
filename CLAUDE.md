@@ -8,6 +8,14 @@ Default to using Bun instead of Node.js.
 - Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
 - Bun automatically loads .env, so don't use dotenv.
 
+## Development
+
+- Avoid custom css styles in components, use tailwind classes instead.
+- Use the custom colors from the tailwind theme
+
 ## Testing
+
+Use a TDD approach adding a test to check the behavior you wish to add first and the implementing
+the change to pass the test.
 
 Use `bun run test` to run tests.

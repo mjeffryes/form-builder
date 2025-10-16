@@ -216,7 +216,7 @@ describe('SaveProjectModal.vue', () => {
       const wrapper = mountModal({ open: true })
       await nextTick()
 
-      const overlay = document.querySelector('.modal-overlay')
+      const overlay = document.querySelector('.fixed.inset-0')
       overlay.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
       await nextTick()
 

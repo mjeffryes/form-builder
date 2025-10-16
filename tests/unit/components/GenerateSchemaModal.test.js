@@ -67,14 +67,14 @@ describe('GenerateSchemaModal.vue', () => {
     });
 
     it('emits cancel event when clicking overlay', async () => {
-      const overlay = wrapper.find('.modal-overlay');
+      const overlay = wrapper.find('.fixed.inset-0');
       await overlay.trigger('click');
 
       expect(wrapper.emitted('cancel')).toBeTruthy();
     });
 
     it('does not emit cancel when clicking modal content', async () => {
-      const modalContent = wrapper.find('.modal-content');
+      const modalContent = wrapper.find('.bg-white');
       await modalContent.trigger('click');
 
       expect(wrapper.emitted('cancel')).toBeFalsy();
@@ -109,12 +109,12 @@ describe('GenerateSchemaModal.vue', () => {
     });
 
     it('has modal overlay with backdrop', () => {
-      const overlay = wrapper.find('.modal-overlay');
+      const overlay = wrapper.find('.fixed.inset-0');
       expect(overlay.exists()).toBe(true);
     });
 
     it('has centered modal content', () => {
-      const modalContent = wrapper.find('.modal-content');
+      const modalContent = wrapper.find('.bg-white');
       expect(modalContent.exists()).toBe(true);
     });
   });

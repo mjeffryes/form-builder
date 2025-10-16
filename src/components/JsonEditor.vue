@@ -60,6 +60,7 @@ import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
 import { foldGutter, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldKeymap } from '@codemirror/language'
+import { useDarkMode } from '../composables/useDarkMode'
 import { lintKeymap } from '@codemirror/lint'
 import { validateJson } from '@/services/JsonValidator'
 
@@ -91,9 +92,7 @@ let editorView = null
 let debounceTimer = null
 
 // Detect dark mode
-const isDarkMode = () => {
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-}
+const { isDark, toggle: toggleDarkMode } = useDarkMode()
 
 function validateContent(content) {
   const result = validateJson(content)
@@ -199,8 +198,8 @@ onMounted(() => {
   ]
 
   // Add dark theme if in dark mode
-  if (isDarkMode()) {
-    extensions.push(oneDark)
+  if (isDark) {
+    //extensions.push(oneDark)
   }
 
   // Create editor state
