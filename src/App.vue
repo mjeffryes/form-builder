@@ -1,6 +1,6 @@
 <!-- Main Form Builder application component -->
 <template>
-  <div id="app" class="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+  <div id="app" class="flex h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Schema Generation Modal -->
     <GenerateSchemaModal
       :open="showGenerateModal"
@@ -16,87 +16,83 @@
       @cancel="handleCancelSave"
     />
 
-    <!-- Header -->
-    <header class="header">
-      <div class="header-content">
-        <h1 class="header-title">Form Builder</h1>
-        <div class="header-project-name">
-          {{ currentProjectName || 'Untitled' }}
-        </div>
-      </div>
-      <div class="header-actions">
-        <button
-          class="btn btn-icon"
-          @click="toggleDarkMode"
-          :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-          title="Toggle dark mode"
-        >
-          <span v-if="isDark">☀️</span>
-          <span v-else>🌙</span>
-        </button>
-        <button class="btn btn-secondary" @click="showProjectList = !showProjectList">
-          Projects
-        </button>
-        <button class="btn btn-secondary" @click="handleExport">
-          Export
-        </button>
-        <button class="btn btn-primary" @click="showSaveModal = true">
-          Save As
-        </button>
-      </div>
-    </header>
+    <!-- Left Panel: Editors -->
+    <div
+      data-testid="left-panel"
+      class="border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden"
+      :style="{ width: `${editorPanelWidth}px` }"
+    >
+      <SchemaEditorPanel
+        v-model:json-schema="jsonSchema"
+        v-model:ui-schema="uiSchema"
+        v-model:data="data"
+      />
+    </div>
 
-    <main class="flex-1 flex overflow-hidden">
-      <!-- Project List Sidebar -->
-      <aside
-        v-if="showProjectList"
-        class="project-sidebar"
-      >
-        <ProjectList
-          :projects="savedProjects"
-          @load="handleLoadProject"
-          @rename="handleRenameProject"
-          @delete="handleDeleteProject"
-        />
-      </aside>
+    <!-- Resize Handle -->
+    <div class="w-1 cursor-ew-resize bg-transparent hover:bg-blue-100 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-900 relative flex-shrink-0 transition-colors" @mousedown="startResize"></div>
 
-      <!-- Left Panel: Editors -->
-      <div
-        data-testid="left-panel"
-        class="border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden"
-        :style="{ width: `${editorPanelWidth}px` }"
-      >
-        <SchemaEditorPanel
-          v-model:json-schema="jsonSchema"
-          v-model:ui-schema="uiSchema"
-          v-model:data="data"
-        />
-      </div>
-
-      <!-- Resize Handle -->
-      <div
-        class="resize-handle-vertical"
-        @mousedown="startResize"
-      ></div>
-
-      <!-- Right Panel: Preview -->
-      <div data-testid="right-panel" class="flex flex-1 flex-col" >
-        <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">JsonForm Vue Playground</h2>
-        </div>
-        <div class="flex-1 p-4 bg-gray-50 dark:bg-gray-900 overflow-auto" >
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Form Preview</h2>
-            <FormPreview
-              :json-schema="jsonSchema"
-              :ui-schema="uiSchema"
-              :data="data"
-              :frozen="!allValid"
-            />
+    <!-- Right Panel: Preview -->
+    <div class="flex-grow flex flex-col">
+      <!-- Header -->
+      <header class="flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-4">
+          <h1 class="m-0 text-xl font-semibold text-gray-900 dark:text-gray-50">JsonForms Vue Playground</h1>
+          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            {{ currentProjectName || 'Untitled' }}
           </div>
         </div>
-      </div>
-    </main>
+        <div class="flex gap-3">
+          <button
+            class="px-2 py-2 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 text-xl flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 transition-all"
+            @click="toggleDarkMode"
+            :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+            title="Toggle dark mode"
+          >
+            <span v-if="isDark">☀️</span>
+            <span v-else>🌙</span>
+          </button>
+          <button class="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 transition-all" @click="showProjectList = !showProjectList">
+            Projects
+          </button>
+          <button class="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 transition-all" @click="handleExport">
+            Export
+          </button>
+          <button class="px-4 py-2 text-sm font-medium rounded-md border-0 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-10 transition-all" @click="showSaveModal = true">
+            Save As
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 flex overflow-hidden">
+        <!-- Project List Sidebar -->
+        <aside
+          v-if="showProjectList"
+          class="w-80 border-r border-gray-200 dark:border-gray-700 overflow-y-auto flex-shrink-0"
+        >
+          <ProjectList
+            :projects="savedProjects"
+            @load="handleLoadProject"
+            @rename="handleRenameProject"
+            @delete="handleDeleteProject"
+          />
+        </aside>
+
+        <div data-testid="right-panel" class="flex flex-1 flex-col" >
+          <div class="flex-1 p-4 bg-gray-50 dark:bg-gray-900 overflow-auto" >
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Form Preview</h2>
+              <FormPreview
+                :json-schema="jsonSchema"
+                :ui-schema="uiSchema"
+                :data="data"
+                :frozen="!allValid"
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+  </div>
   </div>
 </template>
 
@@ -378,148 +374,5 @@ function stopResize() {
 <style>
 #app {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.5rem;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.header-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.header-project-name {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.btn-icon {
-  padding: 0.5rem;
-  background: transparent;
-  border: 1px solid #d1d5db;
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-icon:hover {
-  background-color: #f9fafb;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #2563eb;
-}
-
-.btn-secondary {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-
-.btn-secondary:hover {
-  background-color: #f9fafb;
-}
-
-.project-sidebar {
-  width: 320px;
-  border-right: 1px solid #e5e7eb;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.resize-handle-vertical {
-  width: 4px;
-  cursor: ew-resize;
-  background: transparent;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.resize-handle-vertical:hover {
-  background-color: var(--color-blue-1);
-}
-
-.resize-handle-vertical:active {
-  background-color: var(--color-blue-1);
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  .header {
-    background: #1f2937;
-    border-bottom-color: #374151;
-  }
-
-  .header-title {
-    color: #f9fafb;
-  }
-
-  .header-project-name {
-    color: #9ca3af;
-  }
-
-  .btn-secondary {
-    background-color: #374151;
-    color: #d1d5db;
-    border-color: #4b5563;
-  }
-
-  .btn-secondary:hover {
-    background-color: #4b5563;
-  }
-
-  .btn-icon {
-    background-color: transparent;
-    border-color: #4b5563;
-  }
-
-  .btn-icon:hover {
-    background-color: #4b5563;
-  }
-
-  .project-sidebar {
-    border-right-color: #374151;
-  }
 }
 </style>

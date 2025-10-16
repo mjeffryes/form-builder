@@ -169,7 +169,7 @@ describe('App.vue', () => {
       const wrapper = mount(App)
 
       const text = wrapper.text()
-      expect(text).toContain('Form Builder')
+      expect(text).toContain('JsonForms Vue Playground')
       expect(text).toContain('Untitled')
     })
 

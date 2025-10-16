@@ -55,7 +55,7 @@ import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine } from '@codemirror/view'
 import { EditorState, Compartment } from '@codemirror/state'
 import { json } from '@codemirror/lang-json'
-import { oneDark } from '@codemirror/theme-one-dark'
+import { codemirrorTheme } from '@/utils/codemirror_theme'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
@@ -199,7 +199,7 @@ onMounted(() => {
 
   // Add dark theme if in dark mode
   if (isDark) {
-    //extensions.push(oneDark)
+    extensions.push(codemirrorTheme)
   }
 
   // Create editor state
@@ -252,17 +252,5 @@ watch(() => props.readonly, (newReadonly) => {
 
 .editor-content .cm-scroller {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
-}
-
-.editor-content .cm-gutters {
-  background-color: #f3f4f6;
-  border-right: 1px solid #e5e7eb;
-}
-
-@media (prefers-color-scheme: dark) {
-  .editor-content .cm-gutters {
-    background-color: #374151;
-    border-right: 1px solid #4b5563;
-  }
 }
 </style>
