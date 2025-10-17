@@ -1,5 +1,10 @@
-# form-builder
+# JSON Forms Vue playground
 
+This is a playground for constructing schemas for JSON Form. It demonstrates using the Vue rendering integration with basic styling applied
+
+[Try it here](https://form-builder-8ul.pages.dev/)
+
+# Contributing
 To install dependencies:
 
 ```bash
@@ -11,5 +16,3 @@ To run:
 ```bash
 bun run index.ts
 ```
-
-This project was created using `bun init` in bun v1.2.22. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
